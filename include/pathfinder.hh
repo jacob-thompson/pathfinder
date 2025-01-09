@@ -14,6 +14,9 @@ public:
     // Constructor
     Pathfinder();
 
+    // Get the node the mouse is hovering over
+    void getHoveredNode();
+
     // Destructor
     ~Pathfinder();
 };

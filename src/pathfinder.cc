@@ -1,9 +1,9 @@
 #include "../include/pathfinder.hh"
 
-Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / 10, DISPLAY_HEIGHT / 10) {
+Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / 10, DISPLAY_HEIGHT / 10)
+{
     user.hoveredNode = nullptr;
-    user.x = 0;
-    user.y = 0;
+    user.pos = new SDL_Point();
     error = false;
     win = SDL_CreateWindow(
         "pathfinder",
@@ -28,4 +28,21 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / 10, DISPLAY_HEIGHT / 10) {
     }
 }
 
-Pathfinder::~Pathfinder() {}
+void Pathfinder::getHoveredNode()
+{
+    user.hoveredNode = nullptr;
+    for (int x = 0; x < map.width; x++) {
+        for (int y = 0; y < map.height; y++) {
+            if (SDL_PointInRect(user.pos, &map.nodes[x][y].rect)) {
+                user.hoveredNode = &map.nodes[x][y];
+                break;
+            }
+        }
+        if (user.hoveredNode != nullptr)
+            break;
+    }
+}
+
+Pathfinder::~Pathfinder() {
+    delete user.pos;
+}

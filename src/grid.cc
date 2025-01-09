@@ -1,6 +1,7 @@
 #include "../include/grid.hh"
 
-Grid::Grid(int width, int height) : width(width), height(height) {
+Grid::Grid(int width, int height) : width(width), height(height)
+{
     nodes = (Node **)malloc(width * sizeof(Node *));
     for (int x = 0; x < width; x++) {
         nodes[x] = (Node *)malloc(height * sizeof(Node));
@@ -10,18 +11,19 @@ Grid::Grid(int width, int height) : width(width), height(height) {
     }
 }
 
-void Grid::drawGridLines(SDL_Renderer *ren) {
-    int nodeSize = DISPLAY_WIDTH / width;
-    for (int x = 1; x < width; x++) {
-        for (int y = 1; y < height; y++) {
+void Grid::drawGridLines(SDL_Renderer *ren)
+{
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
             SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-            SDL_RenderDrawLine(ren, x * nodeSize, 0, x * nodeSize, DISPLAY_HEIGHT);
-            SDL_RenderDrawLine(ren, 0, y * nodeSize, DISPLAY_WIDTH, y * nodeSize);
+            SDL_RenderDrawLine(ren, x * NODE_SIZE, 0, x * NODE_SIZE, DISPLAY_HEIGHT);
+            SDL_RenderDrawLine(ren, 0, y * NODE_SIZE, DISPLAY_WIDTH, y * NODE_SIZE);
         }
     }
 }
 
-void Grid::drawNodes(SDL_Renderer *ren) {
+void Grid::drawNodes(SDL_Renderer *ren)
+{
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             SDL_SetRenderDrawColor(
@@ -36,12 +38,14 @@ void Grid::drawNodes(SDL_Renderer *ren) {
     }
 }
 
-void Grid::draw(SDL_Renderer *ren) {
+void Grid::draw(SDL_Renderer *ren)
+{
     drawGridLines(ren);
     drawNodes(ren);
 }
 
-Grid::~Grid() {
+Grid::~Grid()
+{
     for (int x = 0; x < width; x++) {
         free(nodes[x]);
     }

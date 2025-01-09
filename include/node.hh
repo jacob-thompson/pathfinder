@@ -5,7 +5,7 @@
 
 #include "SDL.h"
 
-#define NODE_SIZE 10
+#define NODE_SIZE 20
 
 class Node {
 public:
@@ -19,7 +19,7 @@ public:
 };
 
 typedef struct {
-    int x, y;
+    SDL_Point *pos;
     Node *hoveredNode;
 } Input;
 

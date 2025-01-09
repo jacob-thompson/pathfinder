@@ -15,7 +15,6 @@ int main(void)
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Pathfinder initialized\n");
     }
 
-
     SDL_Event e;
     bool quit = false;
     while (!quit) {
@@ -29,22 +28,36 @@ int main(void)
                 }
             }
             if (e.type == SDL_MOUSEMOTION) {
-                pf.user.x = e.motion.x;
-                pf.user.y = e.motion.y;
-                pf.user.hoveredNode = &pf.map.nodes[pf.user.x / NODE_SIZE][pf.user.y / NODE_SIZE];
+                pf.user.pos->x = e.motion.x;
+                pf.user.pos->y = e.motion.y;
             }
         }
 
+        // input handling
+        const Uint8 *keys = SDL_GetKeyboardState(nullptr);
+        pf.getHoveredNode();
+
+        /*
         if (pf.user.hoveredNode != nullptr)
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Hovered node: (%d, %d)\n", pf.user.hoveredNode->x, pf.user.hoveredNode->y);
 
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mouse pos: (%d, %d)\n", pf.user.x, pf.user.y);
-
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mouse pos: (%d, %d)\n", pf.user.pos->x, pf.user.pos->y);
+        */
 
         SDL_SetRenderDrawColor(pf.ren, 175, 175, 175, 255);
         SDL_RenderClear(pf.ren);
 
         pf.map.draw(pf.ren);
+
+        if (pf.user.hoveredNode != nullptr) {
+                if (keys[SDL_SCANCODE_LSHIFT])
+                    SDL_SetRenderDrawColor(pf.ren, 0, 255, 0, 75);
+                else if (keys[SDL_SCANCODE_LCTRL])
+                    SDL_SetRenderDrawColor(pf.ren, 255, 0, 0, 75);
+                else
+                    SDL_SetRenderDrawColor(pf.ren, 0, 0, 0, 75);
+            SDL_RenderFillRect(pf.ren, &pf.user.hoveredNode->rect);
+        }
 
         SDL_RenderPresent(pf.ren);
     }
