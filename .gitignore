@@ -1,0 +1,6 @@
+.DS_STORE
+.cache
+pathfinder
+build/*.o
+compile_commands.json
+todo
