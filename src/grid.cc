@@ -11,6 +11,12 @@ Grid::Grid(int width, int height) : width(width), height(height)
     }
 }
 
+void Grid::drawBackground(SDL_Renderer *ren)
+{
+    SDL_SetRenderDrawColor(ren, 175, 175, 175, 255);
+    SDL_RenderClear(ren);
+}
+
 void Grid::drawGridLines(SDL_Renderer *ren)
 {
     for (int x = 0; x < width; x++) {
@@ -38,10 +44,24 @@ void Grid::drawNodes(SDL_Renderer *ren)
     }
 }
 
-void Grid::draw(SDL_Renderer *ren)
+void Grid::drawGrid(SDL_Renderer *ren)
 {
+    drawBackground(ren);
     drawGridLines(ren);
     drawNodes(ren);
+}
+
+void Grid::drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys)
+{
+    if (keys[SDL_SCANCODE_LSHIFT])
+        SDL_SetRenderDrawColor(ren, 0, 255, 0, 75);
+    else if (keys[SDL_SCANCODE_LCTRL])
+        SDL_SetRenderDrawColor(ren, 255, 0, 0, 75);
+    else
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 75);
+
+    if (node != nullptr)
+        SDL_RenderFillRect(ren, &node->rect);
 }
 
 Grid::~Grid()

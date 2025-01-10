@@ -4,18 +4,29 @@
 #include "grid.hh"
 
 class Pathfinder {
+private:
+    bool error;
+    bool running;
 public:
     Grid map;
     Input user;
     SDL_Window *win;
     SDL_Renderer *ren;
-    bool error;
 
     // Constructor
     Pathfinder();
 
-    // Get the node the mouse is hovering over
-    void getHoveredNode();
+    // Check if there was an error initializing
+    bool isInitError();
+
+    // Check if the program is running
+    bool isRunning();
+
+    // Handles an event
+    void handleEvent(SDL_Event e);
+
+    // Updates the user's hovered node
+    void updateHoveredNode();
 
     // Destructor
     ~Pathfinder();

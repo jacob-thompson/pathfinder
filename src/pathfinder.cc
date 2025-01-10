@@ -5,6 +5,7 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / 10, DISPLAY_HEIGHT / 10)
     user.hoveredNode = nullptr;
     user.pos = new SDL_Point();
     error = false;
+    running = true;
     win = SDL_CreateWindow(
         "pathfinder",
         SDL_WINDOWPOS_CENTERED,
@@ -28,7 +29,32 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / 10, DISPLAY_HEIGHT / 10)
     }
 }
 
-void Pathfinder::getHoveredNode()
+bool Pathfinder::isInitError()
+{
+    return error;
+}
+
+bool Pathfinder::isRunning()
+{
+    return running;
+}
+
+void Pathfinder::handleEvent(SDL_Event e)
+{
+    if (e.type == SDL_QUIT)
+        running = false;
+
+    if (e.type == SDL_KEYUP)
+        if (e.key.keysym.sym == SDLK_ESCAPE)
+            running = false;
+
+    if (e.type == SDL_MOUSEMOTION) {
+        user.pos->x = e.motion.x;
+        user.pos->y = e.motion.y;
+    }
+}
+
+void Pathfinder::updateHoveredNode()
 {
     user.hoveredNode = nullptr;
     for (int x = 0; x < map.width; x++) {
