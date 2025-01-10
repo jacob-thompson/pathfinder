@@ -2,6 +2,8 @@
 
 Grid::Grid(int width, int height) : width(width), height(height)
 {
+    startNode = nullptr;
+    endNode = nullptr;
     nodes = (Node **)malloc(width * sizeof(Node *));
     for (int x = 0; x < width; x++) {
         nodes[x] = (Node *)malloc(height * sizeof(Node));
@@ -9,6 +11,16 @@ Grid::Grid(int width, int height) : width(width), height(height)
             nodes[x][y] = Node(x, y);
         }
     }
+}
+
+void Grid::reset()
+{
+    for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
+            nodes[x][y].setToDefault();
+
+    startNode = nullptr;
+    endNode = nullptr;
 }
 
 void Grid::drawBackground(SDL_Renderer *ren)

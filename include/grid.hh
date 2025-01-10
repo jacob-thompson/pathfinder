@@ -5,8 +5,8 @@
 
 #include "node.hh"
 
-#define DISPLAY_WIDTH 800  // Define display width, adjust as necessary
-#define DISPLAY_HEIGHT 600 // Define display height, adjust as necessary
+#define DISPLAY_WIDTH 800  // window width
+#define DISPLAY_HEIGHT 600 // window height
 
 class Grid {
 private:
@@ -21,14 +21,19 @@ private:
 public:
     int width, height; // number of nodes in the x and y directions
     Node **nodes; // 2D array of nodes
+    Node *startNode; // points to the start node
+    Node *endNode;   // points to the end node
 
     // Constructor
     Grid(int width, int height);
 
-    // Function to draw the entire grid
+    // Reset the grid to its default state
+    void reset();
+
+    // Draw the grid
     void drawGrid(SDL_Renderer *ren);
 
-    // Function to draw hovered node
+    // Draw the hovered node
     void drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys);
 
     // Destructor

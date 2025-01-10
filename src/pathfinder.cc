@@ -44,13 +44,30 @@ void Pathfinder::handleEvent(SDL_Event e)
     if (e.type == SDL_QUIT)
         running = false;
 
-    if (e.type == SDL_KEYUP)
-        if (e.key.keysym.sym == SDLK_ESCAPE)
+    if (e.type == SDL_KEYUP) {
+        if (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q)
             running = false;
+        if (e.key.keysym.sym == SDLK_z)
+            map.reset();
+    }
 
     if (e.type == SDL_MOUSEMOTION) {
         user.pos->x = e.motion.x;
         user.pos->y = e.motion.y;
+    }
+
+    if (e.type == SDL_MOUSEBUTTONDOWN) {
+        if (e.button.button == SDL_BUTTON_LEFT)
+            user.leftClick = true;
+        if (e.button.button == SDL_BUTTON_RIGHT)
+            user.rightClick = true;
+    }
+
+    if (e.type == SDL_MOUSEBUTTONUP) {
+        if (e.button.button == SDL_BUTTON_LEFT)
+            user.leftClick = false;
+        if (e.button.button == SDL_BUTTON_RIGHT)
+            user.rightClick = false;
     }
 }
 
@@ -66,6 +83,47 @@ void Pathfinder::updateHoveredNode()
         }
         if (user.hoveredNode != nullptr)
             break;
+    }
+}
+
+void Pathfinder::modifyHoveredNode(const Uint8 *keys)
+{
+    if (user.leftClick && keys[SDL_SCANCODE_LSHIFT] && user.hoveredNode != nullptr) {
+        bool newStart = true;
+        if (map.startNode != nullptr) {
+            newStart = map.startNode->x != user.hoveredNode->x || map.startNode->y != user.hoveredNode->y;
+            map.startNode->setToDefault();
+        }
+        map.startNode = user.hoveredNode;
+        user.hoveredNode->setToStart();
+        if (newStart) {
+            SDL_LogInfo(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "Start node set: (%d, %d)\n",
+                map.startNode->x,
+                map.startNode->y
+            );
+        }
+    } else if (user.leftClick && keys[SDL_SCANCODE_LCTRL] && user.hoveredNode != nullptr) {
+        bool newEnd = true;
+        if (map.endNode != nullptr) {
+            newEnd = map.endNode->x != user.hoveredNode->x || map.endNode->y != user.hoveredNode->y;
+            map.endNode->setToDefault();
+        }
+        map.endNode = user.hoveredNode;
+        user.hoveredNode->setToEnd();
+        if (newEnd) {
+            SDL_LogInfo(
+                SDL_LOG_CATEGORY_APPLICATION,
+                "End node set: (%d, %d)\n",
+                map.endNode->x,
+                map.endNode->y
+            );
+        }
+    } else if (user.leftClick && user.hoveredNode != nullptr) {
+        user.hoveredNode->setToWall();
+    } else if (user.rightClick && user.hoveredNode != nullptr) {
+        user.hoveredNode->setToDefault();
     }
 }
 

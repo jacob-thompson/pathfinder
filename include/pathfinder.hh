@@ -28,6 +28,9 @@ public:
     // Updates the user's hovered node
     void updateHoveredNode();
 
+    // Modify the state of the hovered node based on input
+    void modifyHoveredNode(const Uint8 *keys);
+
     // Destructor
     ~Pathfinder();
 };

@@ -24,6 +24,7 @@ int main(void)
         // input
         const Uint8 *keys = SDL_GetKeyboardState(nullptr);
         pf.updateHoveredNode();
+        pf.modifyHoveredNode(keys);
 
         /*
         if (pf.user.hoveredNode != nullptr)
