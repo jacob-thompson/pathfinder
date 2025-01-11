@@ -33,6 +33,7 @@ public:
     SDL_Renderer *ren;
     std::set<Node *> unvisited;
     std::set<Node *> path;
+    bool configMenu;
     bool pathfinding;
 
     // Constructor

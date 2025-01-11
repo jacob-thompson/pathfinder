@@ -23,8 +23,10 @@ int main(void)
 
         // input
         const Uint8 *keys = SDL_GetKeyboardState(nullptr);
-        pf.setHoveredNode();
-        pf.modifyHoveredNode(keys);
+        if (!pf.configMenu && !pf.pathfinding) {
+            pf.setHoveredNode();
+            pf.modifyHoveredNode(keys);
+        }
 
         /*
         if (pf.user.hoveredNode != nullptr)
@@ -35,13 +37,19 @@ int main(void)
 
         // draw
         pf.map.drawGrid(pf.ren);
-        pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys);
-        if (!pf.path.empty())
-            pf.map.drawPath(pf.ren, pf.path);
+
+        if (!pf.configMenu) {
+            pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys);
+            if (!pf.path.empty())
+                pf.map.drawPath(pf.ren, pf.path);
+        } else {
+            pf.map.drawConfigMenu(pf.ren, pf.user.pos, pf.user.leftClick);
+        }
 
         // render
         SDL_RenderPresent(pf.ren);
     }
 
+    SDL_Quit();
     return 0;
 }

@@ -6,11 +6,19 @@
 
 #include "node.hh"
 
+#include "SDL_ttf.h"
+
 #define DISPLAY_WIDTH 800  // window width
 #define DISPLAY_HEIGHT 600 // window height
 
 class Grid {
 private:
+    int configMenuWidth; // width of the configuration menu
+    int configMenuHeight; // height of the configuration menu
+    SDL_Rect configMenuRect; // rectangle for the configuration menu
+    TTF_Font *font;  // font for the text
+    bool error; // flag for initialization errors
+
     // Function to draw background
     void drawBackground(SDL_Renderer *ren);
 
@@ -24,9 +32,18 @@ public:
     Node **nodes; // 2D array of nodes
     Node *startNode; // points to the start node
     Node *endNode;   // points to the end node
+    SDL_Rect runButton; // rectangle for the run button
+    SDL_Rect resetButton; // rectangle for the reset button
+    SDL_Rect dijkstraCheckbox; // rectangle for the Dijkstra checkbox
+    SDL_Rect aStarCheckbox; // rectangle for the A* checkbox
+    bool dijkstra; // flag for Dijkstra's algorithm
+    bool aStar; // flag for A* algorithm
 
     // Constructor
     Grid(int width, int height);
+
+    // Check if there was an initialization error
+    bool isInitError();
 
     // Reset the grid to its default state
     void reset();
@@ -39,6 +56,9 @@ public:
 
     // Draw the path
     void drawPath(SDL_Renderer *ren, std::set<Node *> path);
+
+    // Draw the configuration menu
+    void drawConfigMenu(SDL_Renderer *ren, SDL_Point *pos, bool leftClicking);
 
     // Destructor
     ~Grid();

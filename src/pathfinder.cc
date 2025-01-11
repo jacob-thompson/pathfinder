@@ -6,6 +6,7 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
     user.pos = new SDL_Point();
     error = false;
     running = true;
+    configMenu = false;
     pathfinding = false;
     win = SDL_CreateWindow(
         "pathfinder",
@@ -15,15 +16,21 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
         DISPLAY_HEIGHT,
         SDL_WINDOW_SHOWN
     );
-    if (win == NULL) {
+
+    if (map.isInitError())
+        error = true;
+
+    if (!win) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateWindow Error: %s\n", SDL_GetError());
         error = true;
     }
+
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (ren == NULL) {
+    if (!ren) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_CreateRenderer Error: %s\n", SDL_GetError());
         error = true;
     }
+
     if (SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_SetRenderDrawBlendMode Error: %s\n", SDL_GetError());
         error = true;
@@ -55,6 +62,8 @@ void Pathfinder::handleEvent(SDL_Event e)
                 return;
             aStar();
         }
+        if (e.key.keysym.sym == SDLK_c)
+            configMenu = !configMenu;
         if (e.key.keysym.sym == SDLK_d) {
             if (user.leftClick || user.rightClick)
                 return;
@@ -83,6 +92,28 @@ void Pathfinder::handleEvent(SDL_Event e)
             user.leftClick = false;
         if (e.button.button == SDL_BUTTON_RIGHT)
             user.rightClick = false;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.dijkstraCheckbox)) {
+            map.dijkstra = true;
+            map.aStar = !map.dijkstra;
+        }
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.aStarCheckbox)) {
+            map.aStar = true;
+            map.dijkstra = !map.aStar;
+        }
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.runButton)) {
+            configMenu = false;
+            if (map.dijkstra)
+                dijkstra();
+            if (map.aStar)
+                aStar();
+        }
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.resetButton)) {
+            map.reset();
+        }
     }
 }
 
@@ -258,4 +289,6 @@ void Pathfinder::aStar()
 
 Pathfinder::~Pathfinder() {
     delete user.pos;
+    SDL_DestroyRenderer(ren);
+    SDL_DestroyWindow(win);
 }
