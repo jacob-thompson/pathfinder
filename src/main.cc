@@ -23,7 +23,7 @@ int main(void)
 
         // input
         const Uint8 *keys = SDL_GetKeyboardState(nullptr);
-        pf.updateHoveredNode();
+        pf.setHoveredNode();
         pf.modifyHoveredNode(keys);
 
         /*
@@ -36,6 +36,8 @@ int main(void)
         // draw
         pf.map.drawGrid(pf.ren);
         pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys);
+        if (!pf.path.empty())
+            pf.map.drawPath(pf.ren, pf.path);
 
         // render
         SDL_RenderPresent(pf.ren);

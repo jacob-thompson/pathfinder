@@ -7,6 +7,7 @@ endif
 CC = g++
 
 CFLAGS = -I.
+CFLAGS += -std=c++11
 CFLAGS += -Wall
 
 SDLFLAGS = `sdl2-config --libs --cflags`

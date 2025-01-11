@@ -2,6 +2,7 @@
 #define GRID_H
 
 #include <cstdlib>
+#include <set>
 
 #include "node.hh"
 
@@ -35,6 +36,9 @@ public:
 
     // Draw the hovered node
     void drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys);
+
+    // Draw the path
+    void drawPath(SDL_Renderer *ren, std::set<Node *> path);
 
     // Destructor
     ~Grid();

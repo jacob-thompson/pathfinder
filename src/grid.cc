@@ -76,6 +76,14 @@ void Grid::drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys)
         SDL_RenderFillRect(ren, &node->rect);
 }
 
+void Grid::drawPath(SDL_Renderer *ren, std::set<Node *> path)
+{
+    for (Node *node : path) {
+        SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
+        SDL_RenderFillRect(ren, &node->rect);
+    }
+}
+
 Grid::~Grid()
 {
     for (int x = 0; x < width; x++) {
