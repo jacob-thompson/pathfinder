@@ -7,6 +7,11 @@ class Pathfinder {
 private:
     bool error;
     bool running;
+    bool selectingDijkstra;
+    bool selectingAStar;
+    bool selectingDiag;
+    bool selectingReset;
+    bool selectingRun;
 
     // Compute the path using Dijkstra's algorithm
     void dijkstra();

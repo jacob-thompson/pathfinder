@@ -6,6 +6,11 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
     user.pos = new SDL_Point();
     error = false;
     running = true;
+    selectingDijkstra = false;
+    selectingAStar = false;
+    selectingDiag = false;
+    selectingReset = false;
+    selectingRun = false;
     configMenu = false;
     pathfinding = false;
     win = SDL_CreateWindow(
@@ -85,6 +90,21 @@ void Pathfinder::handleEvent(SDL_Event e)
             user.leftClick = true;
         if (e.button.button == SDL_BUTTON_RIGHT)
             user.rightClick = true;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.dijkstraCheckbox))
+            selectingDijkstra = true;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.aStarCheckbox))
+            selectingAStar = true;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.diagCheckbox))
+            selectingDiag = true;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.resetButton))
+            selectingReset = true;
+
+        if (configMenu && SDL_PointInRect(user.pos, &map.runButton))
+            selectingRun = true;
     }
 
     if (e.type == SDL_MOUSEBUTTONUP) {
@@ -93,27 +113,67 @@ void Pathfinder::handleEvent(SDL_Event e)
         if (e.button.button == SDL_BUTTON_RIGHT)
             user.rightClick = false;
 
-        if (configMenu && SDL_PointInRect(user.pos, &map.dijkstraCheckbox)) {
+        if (
+            configMenu
+            &&
+            SDL_PointInRect(user.pos, &map.dijkstraCheckbox)
+            &&
+            selectingDijkstra
+        ) {
             map.dijkstra = true;
             map.aStar = !map.dijkstra;
         }
 
-        if (configMenu && SDL_PointInRect(user.pos, &map.aStarCheckbox)) {
+        if (
+            configMenu
+            &&
+            SDL_PointInRect(user.pos, &map.aStarCheckbox)
+            &&
+            selectingAStar
+        ) {
             map.aStar = true;
             map.dijkstra = !map.aStar;
         }
 
-        if (configMenu && SDL_PointInRect(user.pos, &map.runButton)) {
+        if (
+            configMenu
+            &&
+            SDL_PointInRect(user.pos, &map.diagCheckbox)
+            &&
+            selectingDiag
+        ) {
+            map.diagonalTraversal = !map.diagonalTraversal;
+        }
+
+        if (
+            configMenu
+            &&
+            SDL_PointInRect(user.pos, &map.resetButton)
+            &&
+            selectingReset
+        ) {
+            configMenu = false;
+            map.reset();
+        }
+
+        if (
+            configMenu
+            &&
+            SDL_PointInRect(user.pos, &map.runButton)
+            &&
+            selectingRun
+        ) {
             configMenu = false;
             if (map.dijkstra)
                 dijkstra();
             if (map.aStar)
                 aStar();
         }
-
-        if (configMenu && SDL_PointInRect(user.pos, &map.resetButton)) {
-            map.reset();
-        }
+        selectingDijkstra = false;
+        selectingAStar = false;
+        selectingDiag = false;
+        selectingReset = false;
+        selectingRun = false;
     }
 }
 
@@ -207,13 +267,19 @@ void Pathfinder::writeNeighborDistances(Node *current)
 {
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
+            if (!map.diagonalTraversal && i != 0 && j != 0)
+                continue;
+
             int x = current->x + i;
             int y = current->y + j;
+
             if (x < 0 || x >= map.width || y < 0 || y >= map.height)
                 continue;
+
             Node *neighbor = &map.nodes[x][y];
             if (neighbor->isWall)
                 continue;
+
             int newG = current->g + 1;
             neighbor->g = newG < neighbor->g ? newG : neighbor->g;
         }
@@ -230,13 +296,19 @@ void Pathfinder::writePath()
         Node *lowest = nullptr;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
+                if (!map.diagonalTraversal && i != 0 && j != 0)
+                    continue;
+
                 int x = current->x + i;
                 int y = current->y + j;
+
                 if (x < 0 || x >= map.width || y < 0 || y >= map.height )
                     continue;
+
                 Node *neighbor = &map.nodes[x][y];
                 if (neighbor->isWall)
                     continue;
+
                 if (lowest == nullptr || neighbor->g < lowest->g)
                     lowest = neighbor;
             }
@@ -256,9 +328,10 @@ void Pathfinder::dijkstra()
     }
 
     path.clear();
-    pathfinding = true;
 
     resetUnvisitedNodes();
+
+    pathfinding = true;
 
     while (!unvisited.empty()) {
         Node *current = getLowestDistanceNode();

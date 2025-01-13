@@ -36,8 +36,10 @@ public:
     SDL_Rect resetButton; // rectangle for the reset button
     SDL_Rect dijkstraCheckbox; // rectangle for the Dijkstra checkbox
     SDL_Rect aStarCheckbox; // rectangle for the A* checkbox
+    SDL_Rect diagCheckbox; // rectangle for the diagonal traversal checkbox
     bool dijkstra; // flag for Dijkstra's algorithm
     bool aStar; // flag for A* algorithm
+    bool diagonalTraversal; // flag for diagonal traversal
 
     // Constructor
     Grid(int width, int height);

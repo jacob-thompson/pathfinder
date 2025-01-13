@@ -72,6 +72,13 @@ Grid::Grid(int width, int height) : width(width), height(height)
         35
     };
 
+    diagCheckbox = {
+        configMenuRect.x + 10,
+        configMenuRect.y + 100,
+        35,
+        35
+    };
+
     startNode = nullptr;
     endNode = nullptr;
 
@@ -273,6 +280,35 @@ void Grid::drawConfigMenu(SDL_Renderer *ren, SDL_Point *pos, bool leftClicking)
     SDL_RenderCopy(ren, aStarTexture, NULL, &aStarLabel);
     SDL_FreeSurface(aStarSurface);
     SDL_DestroyTexture(aStarTexture);
+
+    // Diagonal traversal checkbox
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderDrawRect(ren, &diagCheckbox);
+
+    if (SDL_PointInRect(pos, &diagCheckbox) && leftClicking) {
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 150);
+        SDL_RenderFillRect(ren, &diagCheckbox);
+    } else if (SDL_PointInRect(pos, &diagCheckbox)) {
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 75);
+        SDL_RenderFillRect(ren, &diagCheckbox);
+    }
+
+    if (diagonalTraversal) {
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+        SDL_RenderFillRect(ren, &diagCheckbox);
+    }
+
+    SDL_Surface *diagSurface = TTF_RenderText_Solid(font, "Diagonal", {0, 0, 0, 255});
+    SDL_Texture *diagTexture = SDL_CreateTextureFromSurface(ren, diagSurface);
+    SDL_Rect diagLabel = {
+        diagCheckbox.x + diagCheckbox.w + 10,
+        diagCheckbox.y + (diagCheckbox.h >> 1) - (diagSurface->h >> 1),
+        diagSurface->w,
+        diagSurface->h
+    };
+    SDL_RenderCopy(ren, diagTexture, NULL, &diagLabel);
+    SDL_FreeSurface(diagSurface);
+    SDL_DestroyTexture(diagTexture);
 }
 
 Grid::~Grid()
