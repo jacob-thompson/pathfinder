@@ -148,12 +148,13 @@ void Grid::drawGrid(SDL_Renderer *ren)
 
 void Grid::drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys)
 {
-    if (keys[SDL_SCANCODE_LSHIFT])
+    if (keys[SDL_SCANCODE_LSHIFT]) {
         SDL_SetRenderDrawColor(ren, 0, 255, 0, 75);
-    else if (keys[SDL_SCANCODE_LCTRL])
+    } else if (keys[SDL_SCANCODE_LCTRL]) {
         SDL_SetRenderDrawColor(ren, 255, 0, 0, 75);
-    else
+    } else {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 75);
+    }
 
     if (node != nullptr)
         SDL_RenderFillRect(ren, &node->rect);

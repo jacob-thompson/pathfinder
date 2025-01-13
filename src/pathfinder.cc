@@ -54,64 +54,57 @@ bool Pathfinder::isRunning()
 
 void Pathfinder::handleEvent(SDL_Event e)
 {
-    if (e.type == SDL_QUIT)
+    if (e.type == SDL_QUIT) {
         running = false;
-
-    if (e.type == SDL_KEYUP) {
+    } else if (e.type == SDL_KEYUP) {
         if (!path.empty())
             path.clear();
-        if (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q)
+
+        if (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q) {
             running = false;
-        if (e.key.keysym.sym == SDLK_a) {
+        } else if (e.key.keysym.sym == SDLK_a) {
             if (user.leftClick || user.rightClick)
                 return;
             aStar();
-        }
-        if (e.key.keysym.sym == SDLK_c)
+        } else if (e.key.keysym.sym == SDLK_c) {
             configMenu = !configMenu;
-        if (e.key.keysym.sym == SDLK_d) {
+        } else if (e.key.keysym.sym == SDLK_d) {
             if (user.leftClick || user.rightClick)
                 return;
             dijkstra();
-        }
-        if (e.key.keysym.sym == SDLK_z)
+        } else if (e.key.keysym.sym == SDLK_z) {
             map.reset();
-    }
-
-    if (e.type == SDL_MOUSEMOTION) {
+        }
+    } else if (e.type == SDL_MOUSEMOTION) {
         user.pos->x = e.motion.x;
         user.pos->y = e.motion.y;
-    }
-
-    if (e.type == SDL_MOUSEBUTTONDOWN) {
+    } else if (e.type == SDL_MOUSEBUTTONDOWN) {
         if (!path.empty())
             path.clear();
-        if (e.button.button == SDL_BUTTON_LEFT)
+
+        if (e.button.button == SDL_BUTTON_LEFT) {
             user.leftClick = true;
-        if (e.button.button == SDL_BUTTON_RIGHT)
+        } else if (e.button.button == SDL_BUTTON_RIGHT) {
             user.rightClick = true;
+        }
 
-        if (configMenu && SDL_PointInRect(user.pos, &map.dijkstraCheckbox))
+        if (configMenu && SDL_PointInRect(user.pos, &map.dijkstraCheckbox)) {
             selectingDijkstra = true;
-
-        if (configMenu && SDL_PointInRect(user.pos, &map.aStarCheckbox))
+        } else if (configMenu && SDL_PointInRect(user.pos, &map.aStarCheckbox)) {
             selectingAStar = true;
-
-        if (configMenu && SDL_PointInRect(user.pos, &map.diagCheckbox))
+        } else if (configMenu && SDL_PointInRect(user.pos, &map.diagCheckbox)) {
             selectingDiag = true;
-
-        if (configMenu && SDL_PointInRect(user.pos, &map.resetButton))
+        } else if (configMenu && SDL_PointInRect(user.pos, &map.resetButton)) {
             selectingReset = true;
-
-        if (configMenu && SDL_PointInRect(user.pos, &map.runButton))
+        } else if (configMenu && SDL_PointInRect(user.pos, &map.runButton)) {
             selectingRun = true;
-    }
-
-    if (e.type == SDL_MOUSEBUTTONUP) {
-        if (e.button.button == SDL_BUTTON_LEFT)
+        }
+    } else if (e.type == SDL_MOUSEBUTTONUP) {
+        if (e.button.button == SDL_BUTTON_LEFT) {
             user.leftClick = false;
-        if (e.button.button == SDL_BUTTON_RIGHT)
+        } else if (e.button.button == SDL_BUTTON_RIGHT) {
             user.rightClick = false;
+        }
 
         if (
             configMenu
@@ -122,9 +115,7 @@ void Pathfinder::handleEvent(SDL_Event e)
         ) {
             map.dijkstra = true;
             map.aStar = !map.dijkstra;
-        }
-
-        if (
+        } else if (
             configMenu
             &&
             SDL_PointInRect(user.pos, &map.aStarCheckbox)
@@ -133,9 +124,7 @@ void Pathfinder::handleEvent(SDL_Event e)
         ) {
             map.aStar = true;
             map.dijkstra = !map.aStar;
-        }
-
-        if (
+        } else if (
             configMenu
             &&
             SDL_PointInRect(user.pos, &map.diagCheckbox)
@@ -143,9 +132,7 @@ void Pathfinder::handleEvent(SDL_Event e)
             selectingDiag
         ) {
             map.diagonalTraversal = !map.diagonalTraversal;
-        }
-
-        if (
+        } else if (
             configMenu
             &&
             SDL_PointInRect(user.pos, &map.resetButton)
@@ -154,9 +141,7 @@ void Pathfinder::handleEvent(SDL_Event e)
         ) {
             configMenu = false;
             map.reset();
-        }
-
-        if (
+        } else if (
             configMenu
             &&
             SDL_PointInRect(user.pos, &map.runButton)
@@ -164,11 +149,13 @@ void Pathfinder::handleEvent(SDL_Event e)
             selectingRun
         ) {
             configMenu = false;
-            if (map.dijkstra)
+            if (map.dijkstra) {
                 dijkstra();
-            if (map.aStar)
+            } else if (map.aStar) {
                 aStar();
+            }
         }
+
         selectingDijkstra = false;
         selectingAStar = false;
         selectingDiag = false;
@@ -270,6 +257,9 @@ void Pathfinder::writeNeighborDistances(Node *current)
             if (!map.diagonalTraversal && i != 0 && j != 0)
                 continue;
 
+            if (i == 0 && j == 0)
+                continue;
+
             int x = current->x + i;
             int y = current->y + j;
 
@@ -297,6 +287,9 @@ void Pathfinder::writePath()
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (!map.diagonalTraversal && i != 0 && j != 0)
+                    continue;
+
+                if (i == 0 && j == 0)
                     continue;
 
                 int x = current->x + i;
