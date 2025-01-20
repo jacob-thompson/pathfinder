@@ -68,7 +68,7 @@ void Pathfinder::handleEvent(SDL_Event e)
 
         if (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q) {
             running = false;
-        } else if (e.key.keysym.sym == SDLK_a) {
+        } else if (e.key.keysym.sym == SDLK_a && !configMenu) {
             if (user.leftClick || user.rightClick)
                 return;
             if (aStarThread.joinable()) {
@@ -77,7 +77,7 @@ void Pathfinder::handleEvent(SDL_Event e)
             aStarThread = std::thread(&Pathfinder::aStar, this);
         } else if (e.key.keysym.sym == SDLK_c) {
             configMenu = !configMenu;
-        } else if (e.key.keysym.sym == SDLK_d) {
+        } else if (e.key.keysym.sym == SDLK_d && !configMenu) {
             if (user.leftClick || user.rightClick)
                 return;
             if (dijkstraThread.joinable()) {
