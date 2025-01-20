@@ -168,9 +168,27 @@ void Pathfinder::handleEvent(SDL_Event e)
         ) {
             configMenu = false;
             if (map.dijkstra) {
-                dijkstra();
+                if (dijkstraThread.joinable()) {
+                    {
+                        std::lock_guard<std::mutex> lock(pathMutex);
+                        terminateThread = true;
+                        cv.notify_all();
+                    }
+                    dijkstraThread.join();
+                    terminateThread = false;
+                }
+                dijkstraThread = std::thread(&Pathfinder::dijkstra, this);
             } else if (map.aStar) {
-                aStar();
+                if (aStarThread.joinable()) {
+                    {
+                        std::lock_guard<std::mutex> lock(pathMutex);
+                        terminateThread = true;
+                        cv.notify_all();
+                    }
+                    aStarThread.join();
+                    terminateThread = false;
+                }
+                aStarThread = std::thread(&Pathfinder::aStar, this);
             }
         }
 

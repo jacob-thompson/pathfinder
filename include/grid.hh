@@ -62,6 +62,9 @@ public:
     // Draw the configuration menu
     void drawConfigMenu(SDL_Renderer *ren, SDL_Point *pos, bool leftClicking);
 
+    // Draw the visualization
+    void drawVisualization(SDL_Renderer *ren);
+
     // Destructor
     ~Grid();
 };

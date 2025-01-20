@@ -312,6 +312,10 @@ void Grid::drawConfigMenu(SDL_Renderer *ren, SDL_Point *pos, bool leftClicking)
     SDL_DestroyTexture(diagTexture);
 }
 
+void Grid::drawVisualization(SDL_Renderer *ren)
+{
+}
+
 Grid::~Grid()
 {
     for (int x = 0; x < width; x++) {

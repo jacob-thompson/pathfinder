@@ -44,6 +44,8 @@ int main(void)
                 pf.map.drawPath(pf.ren, pf.path);
         } else if (pf.configMenu) {
             pf.map.drawConfigMenu(pf.ren, pf.user.pos, pf.user.leftClick);
+        } else if (pf.pathfinding) {
+            pf.map.drawVisualization(pf.ren);
         }
 
         // render
