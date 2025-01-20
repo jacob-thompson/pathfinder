@@ -1,6 +1,10 @@
 #ifndef PATHFINDER_H
 #define PATHFINDER_H
 
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 #include "grid.hh"
 
 class Pathfinder {
@@ -40,6 +44,13 @@ public:
     std::set<Node *> path;
     bool configMenu;
     bool pathfinding;
+    std::thread dijkstraThread; // Thread for Dijkstra's algorithm
+    std::thread aStarThread;    // Thread for A* algorithm
+    std::mutex pathMutex;       // Mutex to protect shared resources
+    std::condition_variable cv; // Condition variable for synchronization
+    bool stepCompleted = false; // Flag to indicate if a step is completed
+    bool terminateThread = false; // Flag to indicate if the thread should terminate
+
 
     // Constructor
     Pathfinder();

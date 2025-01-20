@@ -40,6 +40,12 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_SetRenderDrawBlendMode Error: %s\n", SDL_GetError());
         error = true;
     }
+
+    if (dijkstraThread.joinable())
+        dijkstraThread.join();
+
+    if (aStarThread.joinable())
+        aStarThread.join();
 }
 
 bool Pathfinder::isInitError()
@@ -65,13 +71,25 @@ void Pathfinder::handleEvent(SDL_Event e)
         } else if (e.key.keysym.sym == SDLK_a) {
             if (user.leftClick || user.rightClick)
                 return;
-            aStar();
+            if (aStarThread.joinable()) {
+                aStarThread.join();
+            }
+            aStarThread = std::thread(&Pathfinder::aStar, this);
         } else if (e.key.keysym.sym == SDLK_c) {
             configMenu = !configMenu;
         } else if (e.key.keysym.sym == SDLK_d) {
             if (user.leftClick || user.rightClick)
                 return;
-            dijkstra();
+            if (dijkstraThread.joinable()) {
+                {
+                    std::lock_guard<std::mutex> lock(pathMutex);
+                    terminateThread = true;
+                    cv.notify_all();
+                }
+                dijkstraThread.join();
+                terminateThread = false;
+            }
+            dijkstraThread = std::thread(&Pathfinder::dijkstra, this);
         } else if (e.key.keysym.sym == SDLK_z) {
             map.reset();
         }
@@ -227,6 +245,7 @@ void Pathfinder::modifyHoveredNode(const Uint8 *keys)
 
 void Pathfinder::resetUnvisitedNodes()
 {
+    std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     unvisited.clear();
     for (int x = 0; x < map.width; x++) {
         for (int y = 0; y < map.height; y++) {
@@ -242,6 +261,7 @@ void Pathfinder::resetUnvisitedNodes()
 
 Node *Pathfinder::getLowestDistanceNode()
 {
+    std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     Node *lowest = nullptr;
     for (Node *node : unvisited) {
         if (lowest == nullptr || node->g < lowest->g)
@@ -252,6 +272,7 @@ Node *Pathfinder::getLowestDistanceNode()
 
 void Pathfinder::writeNeighborDistances(Node *current)
 {
+    std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             if (!map.diagonalTraversal && i != 0 && j != 0)
@@ -278,6 +299,7 @@ void Pathfinder::writeNeighborDistances(Node *current)
 
 void Pathfinder::writePath()
 {
+    std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     Node *current = map.endNode;
     while (current != nullptr) {
         path.insert(current);
@@ -320,7 +342,10 @@ void Pathfinder::dijkstra()
         return;
     }
 
-    path.clear();
+    {
+        std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
+        path.clear();
+    }
 
     resetUnvisitedNodes();
 
@@ -333,12 +358,31 @@ void Pathfinder::dijkstra()
             break;
         }
 
-        unvisited.erase(current);
+        {
+            std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
+            unvisited.erase(current);
+        }
 
         if (current == map.endNode)
             break;
 
         writeNeighborDistances(current);
+
+        // Notify the main loop to proceed to the next step
+        {
+            std::unique_lock<std::mutex> lock(pathMutex);
+            stepCompleted = true;
+        }
+        cv.notify_one();
+
+        // Wait for the main loop to allow the next step
+        std::unique_lock<std::mutex> lock(pathMutex);
+        cv.wait_for(lock, std::chrono::milliseconds(1), [this] { return !stepCompleted; });
+
+        if (terminateThread) {
+            pathfinding = false;
+            return;
+        }
     }
 
 
@@ -354,7 +398,14 @@ void Pathfinder::aStar()
 }
 
 Pathfinder::~Pathfinder() {
+    if (dijkstraThread.joinable())
+        dijkstraThread.join();
+
+    if (aStarThread.joinable())
+        aStarThread.join();
+
     delete user.pos;
+
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
 }

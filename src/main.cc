@@ -9,7 +9,7 @@ int main(void)
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "SDL Initialized\n");
     }
 
-    Pathfinder pf = Pathfinder();
+    Pathfinder pf;
     if (pf.isInitError()) {
         return 1; // error message is already logged
     } else {
@@ -38,16 +38,27 @@ int main(void)
         // draw
         pf.map.drawGrid(pf.ren);
 
-        if (!pf.configMenu) {
+        if (!pf.configMenu && !pf.pathfinding) {
             pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys);
             if (!pf.path.empty())
                 pf.map.drawPath(pf.ren, pf.path);
-        } else {
+        } else if (pf.configMenu) {
             pf.map.drawConfigMenu(pf.ren, pf.user.pos, pf.user.leftClick);
         }
 
         // render
         SDL_RenderPresent(pf.ren);
+
+        // Notify the dijkstra thread to proceed to the next step
+        {
+            std::unique_lock<std::mutex> lock(pf.pathMutex);
+            pf.stepCompleted = false;
+        }
+        pf.cv.notify_one();
+
+        // Wait for dijkstra thread to complete the current step
+        std::unique_lock<std::mutex> lock(pf.pathMutex);
+        pf.cv.wait_for(lock, std::chrono::milliseconds(1), [&pf] { return pf.stepCompleted; });
     }
 
     SDL_Quit();
