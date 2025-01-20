@@ -250,6 +250,11 @@ void Pathfinder::modifyHoveredNode(const Uint8 *keys)
             );
         }
     } else if (user.leftClick && user.hoveredNode != nullptr) {
+        if (user.hoveredNode == map.startNode) {
+            map.startNode = nullptr;
+        } else if (user.hoveredNode == map.endNode) {
+            map.endNode = nullptr;
+        }
         user.hoveredNode->setToWall();
     } else if (user.rightClick && user.hoveredNode != nullptr) {
         if (user.hoveredNode == map.startNode) {
