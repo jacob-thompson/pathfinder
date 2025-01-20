@@ -314,6 +314,14 @@ void Grid::drawConfigMenu(SDL_Renderer *ren, SDL_Point *pos, bool leftClicking)
 
 void Grid::drawVisualization(SDL_Renderer *ren)
 {
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            if (nodes[x][y].g < INT_MAX && nodes[x][y].g > 0) {
+                SDL_SetRenderDrawColor(ren, 255, 255, 0, 255);
+                SDL_RenderFillRect(ren, &nodes[x][y].rect);
+            }
+        }
+    }
 }
 
 Grid::~Grid()
