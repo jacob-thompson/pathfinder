@@ -60,6 +60,9 @@ public:
     // Check if the program is running
     bool isRunning();
 
+    // Kill the pathfinder thread
+    void killThread();
+
     // Handles an event
     void handleEvent(SDL_Event e);
 

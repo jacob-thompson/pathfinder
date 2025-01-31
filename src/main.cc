@@ -52,15 +52,8 @@ int main(void)
         SDL_RenderPresent(pf.ren);
 
         // terminate thread if its job is done
-        if (pf.pathfinderThread.joinable() && !pf.pathfinding) {
-            {
-                std::lock_guard<std::mutex> lock(pf.pathMutex);
-                pf.terminateThread = true;
-                pf.cv.notify_all();
-            }
-            pf.pathfinderThread.join();
-            pf.terminateThread = false;
-        }
+        if (pf.pathfinderThread.joinable() && !pf.pathfinding)
+            pf.killThread();
 
         // notify thread to proceed to the next step
         {
