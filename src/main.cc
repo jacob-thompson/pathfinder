@@ -51,14 +51,25 @@ int main(void)
         // render
         SDL_RenderPresent(pf.ren);
 
-        // Notify the dijkstra thread to proceed to the next step
+        // terminate thread if its job is done
+        if (pf.pathfinderThread.joinable() && !pf.pathfinding) {
+            {
+                std::lock_guard<std::mutex> lock(pf.pathMutex);
+                pf.terminateThread = true;
+                pf.cv.notify_all();
+            }
+            pf.pathfinderThread.join();
+            pf.terminateThread = false;
+        }
+
+        // notify thread to proceed to the next step
         {
             std::unique_lock<std::mutex> lock(pf.pathMutex);
             pf.stepCompleted = false;
         }
         pf.cv.notify_one();
 
-        // Wait for dijkstra thread to complete the current step
+        // wait for thread to complete the current step
         std::unique_lock<std::mutex> lock(pf.pathMutex);
         pf.cv.wait_for(lock, std::chrono::milliseconds(1), [&pf] { return pf.stepCompleted; });
     }

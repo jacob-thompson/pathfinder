@@ -41,11 +41,8 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
         error = true;
     }
 
-    if (dijkstraThread.joinable())
-        dijkstraThread.join();
-
-    if (aStarThread.joinable())
-        aStarThread.join();
+    if (pathfinderThread.joinable())
+        pathfinderThread.join();
 }
 
 bool Pathfinder::isInitError()
@@ -68,28 +65,38 @@ void Pathfinder::handleEvent(SDL_Event e)
 
         if (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q) {
             running = false;
-        } else if (e.key.keysym.sym == SDLK_a && !configMenu) {
+        } else if (e.key.keysym.sym == SDLK_a && !pathfinding) {
             if (user.leftClick || user.rightClick)
                 return;
-            if (aStarThread.joinable()) {
-                aStarThread.join();
-            }
-            aStarThread = std::thread(&Pathfinder::aStar, this);
-        } else if (e.key.keysym.sym == SDLK_c) {
-            configMenu = !configMenu;
-        } else if (e.key.keysym.sym == SDLK_d && !configMenu) {
-            if (user.leftClick || user.rightClick)
-                return;
-            if (dijkstraThread.joinable()) {
+
+            configMenu = false;
+            if (pathfinderThread.joinable()) {
                 {
                     std::lock_guard<std::mutex> lock(pathMutex);
                     terminateThread = true;
                     cv.notify_all();
                 }
-                dijkstraThread.join();
+                pathfinderThread.join();
                 terminateThread = false;
             }
-            dijkstraThread = std::thread(&Pathfinder::dijkstra, this);
+            pathfinderThread = std::thread(&Pathfinder::aStar, this);
+        } else if (e.key.keysym.sym == SDLK_c) {
+            configMenu = !configMenu;
+        } else if (e.key.keysym.sym == SDLK_d && !pathfinding) {
+            if (user.leftClick || user.rightClick)
+                return;
+
+            configMenu = false;
+            if (pathfinderThread.joinable()) {
+                {
+                    std::lock_guard<std::mutex> lock(pathMutex);
+                    terminateThread = true;
+                    cv.notify_all();
+                }
+                pathfinderThread.join();
+                terminateThread = false;
+            }
+            pathfinderThread = std::thread(&Pathfinder::dijkstra, this);
         } else if (e.key.keysym.sym == SDLK_z) {
             map.reset();
         }
@@ -168,27 +175,27 @@ void Pathfinder::handleEvent(SDL_Event e)
         ) {
             configMenu = false;
             if (map.dijkstra) {
-                if (dijkstraThread.joinable()) {
+                if (pathfinderThread.joinable()) {
                     {
                         std::lock_guard<std::mutex> lock(pathMutex);
                         terminateThread = true;
                         cv.notify_all();
                     }
-                    dijkstraThread.join();
+                    pathfinderThread.join();
                     terminateThread = false;
                 }
-                dijkstraThread = std::thread(&Pathfinder::dijkstra, this);
+                pathfinderThread = std::thread(&Pathfinder::dijkstra, this);
             } else if (map.aStar) {
-                if (aStarThread.joinable()) {
+                if (pathfinderThread.joinable()) {
                     {
                         std::lock_guard<std::mutex> lock(pathMutex);
                         terminateThread = true;
                         cv.notify_all();
                     }
-                    aStarThread.join();
+                    pathfinderThread.join();
                     terminateThread = false;
                 }
-                aStarThread = std::thread(&Pathfinder::aStar, this);
+                pathfinderThread = std::thread(&Pathfinder::aStar, this);
             }
         }
 
@@ -417,15 +424,67 @@ void Pathfinder::dijkstra()
 
 void Pathfinder::aStar()
 {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "A* algorithm not implemented yet\n");
+    if (map.startNode == nullptr || map.endNode == nullptr) {
+        SDL_LogError(
+            SDL_LOG_CATEGORY_APPLICATION,
+            "Start and end nodes must be set before running the A* algorithm\n"
+        );
+        return;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
+        path.clear();
+    }
+
+    resetUnvisitedNodes();
+
+    pathfinding = true;
+
+    while (!unvisited.empty()) {
+        Node *current = getLowestDistanceNode();
+        if (current == nullptr || current->g == INT_MAX) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No path found\n");
+            break;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
+            unvisited.erase(current);
+        }
+
+        if (current == map.endNode)
+            break;
+
+        writeNeighborDistances(current);
+
+        // Notify the main loop to proceed to the next step
+        {
+            std::unique_lock<std::mutex> lock(pathMutex);
+            stepCompleted = true;
+        }
+        cv.notify_one();
+
+        // Wait for the main loop to allow the next step
+        std::unique_lock<std::mutex> lock(pathMutex);
+        cv.wait_for(lock, std::chrono::milliseconds(1), [this] { return !stepCompleted; });
+
+        if (terminateThread) {
+            pathfinding = false;
+            return;
+        }
+    }
+
+
+    if (map.endNode->g < INT_MAX)
+        writePath();
+
+    pathfinding = false;
 }
 
 Pathfinder::~Pathfinder() {
-    if (dijkstraThread.joinable())
-        dijkstraThread.join();
-
-    if (aStarThread.joinable())
-        aStarThread.join();
+    if (pathfinderThread.joinable())
+        pathfinderThread.join();
 
     delete user.pos;
 
