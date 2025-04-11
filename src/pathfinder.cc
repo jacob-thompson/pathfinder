@@ -302,12 +302,23 @@ void Pathfinder::resetUnvisitedNodes()
     }
 }
 
-Node *Pathfinder::getLowestDistanceNode()
+Node *Pathfinder::getLowestGScoreNode()
 {
     std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     Node *lowest = nullptr;
     for (Node *node : unvisited) {
         if (lowest == nullptr || node->g < lowest->g)
+            lowest = node;
+    }
+    return lowest;
+}
+
+Node *Pathfinder::getLowestFScoreNode()
+{
+    std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
+    Node *lowest = nullptr;
+    for (Node *node : unvisited) {
+        if (lowest == nullptr || node->f < lowest->f)
             lowest = node;
     }
     return lowest;
@@ -336,6 +347,7 @@ void Pathfinder::writeNeighborDistances(Node *current)
 
             int newG = current->g + 1;
             neighbor->g = newG < neighbor->g ? newG : neighbor->g;
+            neighbor->f = neighbor->g + neighbor->h;
         }
     }
 }
@@ -395,7 +407,7 @@ void Pathfinder::dijkstra()
     pathfinding = true;
 
     while (!unvisited.empty()) {
-        Node *current = getLowestDistanceNode();
+        Node *current = getLowestGScoreNode();
         if (current == nullptr || current->g == INT_MAX) {
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No path found\n");
             break;
@@ -454,7 +466,7 @@ void Pathfinder::aStar()
     pathfinding = true;
 
     while (!unvisited.empty()) {
-        Node *current = getLowestDistanceNode();
+        Node *current = getLowestFScoreNode();
         if (current == nullptr || current->g == INT_MAX) {
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No path found\n");
             break;

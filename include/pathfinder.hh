@@ -29,8 +29,11 @@ private:
     // Reset the unvisited nodes
     void resetUnvisitedNodes();
 
-    // Get the node with the lowest distance
-    Node *getLowestDistanceNode();
+    // Get the node with the lowest G Score (distance from start)
+    Node *getLowestGScoreNode();
+
+    // Get the node with the lowest F Score (G + H)
+    Node *getLowestFScoreNode();
 
     // Write the distances to the neighbors of the current node
     void writeNeighborDistances(Node *current);
