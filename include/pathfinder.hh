@@ -23,6 +23,9 @@ private:
     // Compute the path using A* algorithm
     void aStar();
 
+    // Calculate the heuristic value (H) used in A* algorithm
+    void calculateH(Node *current, Node *end);
+
     // Reset the unvisited nodes
     void resetUnvisitedNodes();
 

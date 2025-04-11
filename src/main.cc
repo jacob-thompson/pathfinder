@@ -1,4 +1,5 @@
 #include "../include/pathfinder.hh"
+#include "SDL_log.h"
 
 int main(void)
 {
@@ -29,8 +30,17 @@ int main(void)
         }
 
         /*
-        if (pf.user.hoveredNode != nullptr)
-            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Hovered node: (%d, %d)\n", pf.user.hoveredNode->x, pf.user.hoveredNode->y);
+        if (pf.user.hoveredNode != nullptr) {
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "Hovered node: (%d, %d)\n",
+                        pf.user.hoveredNode->x,
+                        pf.user.hoveredNode->y);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+                        "F: %d, G: %d, H: %d\n",
+                        pf.user.hoveredNode->f,
+                        pf.user.hoveredNode->g,
+                        pf.user.hoveredNode->h);
+        }
 
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mouse pos: (%d, %d)\n", pf.user.pos->x, pf.user.pos->y);
         */

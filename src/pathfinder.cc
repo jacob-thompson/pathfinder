@@ -81,8 +81,10 @@ void Pathfinder::handleEvent(SDL_Event e)
                 return;
 
             configMenu = false;
+
             if (pathfinderThread.joinable())
                 killThread();
+
             pathfinderThread = std::thread(&Pathfinder::aStar, this);
         } else if (e.key.keysym.sym == SDLK_c) {
             configMenu = !configMenu;
@@ -91,9 +93,25 @@ void Pathfinder::handleEvent(SDL_Event e)
                 return;
 
             configMenu = false;
+
             if (pathfinderThread.joinable())
                 killThread();
+
             pathfinderThread = std::thread(&Pathfinder::dijkstra, this);
+        } else if (e.key.keysym.sym == SDLK_r && !pathfinding) {
+            if (user.leftClick || user.rightClick)
+                return;
+
+            configMenu = false;
+
+            if (pathfinderThread.joinable())
+                killThread();
+
+            if (map.dijkstra) {
+                pathfinderThread = std::thread(&Pathfinder::dijkstra, this);
+            } else if (map.aStar) {
+                pathfinderThread = std::thread(&Pathfinder::aStar, this);
+            }
         } else if (e.key.keysym.sym == SDLK_z) {
             map.reset();
         }
@@ -256,16 +274,28 @@ void Pathfinder::modifyHoveredNode(const Uint8 *keys)
     }
 }
 
+void Pathfinder::calculateH(Node *current, Node *end)
+{
+    if (map.diagonalTraversal) {
+        current->h = std::max(abs(current->x - end->x), abs(current->y - end->y));
+    } else {
+        current->h = abs(current->x - end->x) + abs(current->y - end->y);
+    }
+}
+
 void Pathfinder::resetUnvisitedNodes()
 {
     std::lock_guard<std::mutex> lock(pathMutex); // Ensure thread safety
     unvisited.clear();
     for (int x = 0; x < map.width; x++) {
         for (int y = 0; y < map.height; y++) {
+            calculateH(&map.nodes[x][y], map.endNode);
             if (&map.nodes[x][y] == map.startNode) {
                 map.nodes[x][y].g = 0;
+                map.nodes[x][y].f = map.nodes[x][y].h;
             } else {
                 map.nodes[x][y].g = INT_MAX;
+                map.nodes[x][y].f = INT_MAX;
             }
             unvisited.insert(&map.nodes[x][y]);
         }
