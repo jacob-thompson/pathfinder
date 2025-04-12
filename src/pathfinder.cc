@@ -21,6 +21,8 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
         DISPLAY_HEIGHT,
         SDL_WINDOW_SHOWN
     );
+    icon = IMG_Load("resources/pathfinder.png");
+    SDL_SetWindowIcon(win, icon);
 
     if (map.isInitError())
         error = true;

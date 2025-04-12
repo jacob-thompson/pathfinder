@@ -11,7 +11,7 @@ CFLAGS += -std=c++11
 CFLAGS += -Wall
 
 SDLFLAGS = `sdl2-config --libs --cflags`
-SDLFLAGS += -lSDL2_ttf
+SDLFLAGS += -lSDL2_ttf -lSDL2_image
 
 ifeq ($(shell uname), Darwin)
 CFLAGS += -Wno-unused-command-line-argument

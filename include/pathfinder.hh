@@ -7,6 +7,8 @@
 
 #include "grid.hh"
 
+#include "SDL_image.h"
+
 #define DELAY 5
 
 class Pathfinder {
@@ -48,6 +50,7 @@ public:
     Input user;
     SDL_Window *win;
     SDL_Renderer *ren;
+    SDL_Surface *icon;
     std::set<Node *> unvisited;
     std::set<Node *> path;
     bool configMenu;

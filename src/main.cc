@@ -1,5 +1,4 @@
 #include "../include/pathfinder.hh"
-#include "SDL_log.h"
 
 int main(void)
 {
