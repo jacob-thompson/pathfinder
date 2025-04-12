@@ -42,13 +42,14 @@ int main(void)
         }
 
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mouse pos: (%d, %d)\n", pf.user.pos->x, pf.user.pos->y);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Platform: %s\n", SDL_GetPlatform());
         */
 
         // draw
         pf.map.drawGrid(pf.ren);
 
         if (!pf.configMenu && !pf.pathfinding) {
-            pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys);
+            pf.map.drawHovered(pf.ren, pf.user.hoveredNode, keys, pf.startMod, pf.endMod);
             if (!pf.path.empty())
                 pf.map.drawPath(pf.ren, pf.path);
         } else if (pf.configMenu) {

@@ -54,7 +54,12 @@ public:
     void drawGrid(SDL_Renderer *ren);
 
     // Draw the hovered node
-    void drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys);
+    void drawHovered(
+        SDL_Renderer *ren,
+        Node *node,
+        const Uint8 *keys,
+        SDL_Scancode startMod,
+        SDL_Scancode endMod);
 
     // Draw the path
     void drawPath(SDL_Renderer *ren, std::set<Node *> path);

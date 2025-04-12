@@ -58,8 +58,10 @@ public:
     std::thread pathfinderThread; // Thread for pathfinding
     std::mutex pathMutex;       // Mutex to protect shared resources
     std::condition_variable cv; // Condition variable for synchronization
-    bool stepCompleted = false; // Flag to indicate if a step is completed
-    bool terminateThread = false; // Flag to indicate if the thread should terminate
+    bool stepCompleted; // Flag to indicate if a step is completed
+    bool terminateThread; // Flag to indicate if the thread should terminate
+    SDL_Scancode startMod; // Modifier key for start node
+    SDL_Scancode endMod;   // Modifier key for end node
 
 
     // Constructor

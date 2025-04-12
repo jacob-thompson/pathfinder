@@ -13,6 +13,8 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
     selectingRun = false;
     configMenu = false;
     pathfinding = false;
+    stepCompleted = false;
+    terminateThread = false;
     win = SDL_CreateWindow(
         "pathfinder",
         SDL_WINDOWPOS_CENTERED,
@@ -23,6 +25,14 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
     );
     icon = IMG_Load("resources/pathfinder.png");
     SDL_SetWindowIcon(win, icon);
+
+    startMod = SDL_SCANCODE_LSHIFT;
+#if defined(__APPLE__) && defined(__MACH__)
+    endMod = SDL_SCANCODE_LGUI;
+#else
+    endMod = SDL_SCANCODE_LCTRL;
+#endif
+
 
     if (map.isInitError())
         error = true;
@@ -227,7 +237,7 @@ void Pathfinder::setHoveredNode()
 
 void Pathfinder::modifyHoveredNode(const Uint8 *keys)
 {
-    if (user.leftClick && keys[SDL_SCANCODE_LSHIFT] && user.hoveredNode != nullptr) {
+    if (user.leftClick && keys[startMod] && user.hoveredNode != nullptr) {
         bool newStart = true;
         if (map.startNode != nullptr) {
             newStart = map.startNode->x != user.hoveredNode->x || map.startNode->y != user.hoveredNode->y;
@@ -243,7 +253,7 @@ void Pathfinder::modifyHoveredNode(const Uint8 *keys)
                 map.startNode->y
             );
         }
-    } else if (user.leftClick && keys[SDL_SCANCODE_LCTRL] && user.hoveredNode != nullptr) {
+    } else if (user.leftClick && keys[endMod] && user.hoveredNode != nullptr) {
         bool newEnd = true;
         if (map.endNode != nullptr) {
             newEnd = map.endNode->x != user.hoveredNode->x || map.endNode->y != user.hoveredNode->y;

@@ -146,11 +146,16 @@ void Grid::drawGrid(SDL_Renderer *ren)
     drawNodes(ren);
 }
 
-void Grid::drawHovered(SDL_Renderer *ren, Node *node, const Uint8 *keys)
+void Grid::drawHovered(
+    SDL_Renderer *ren,
+    Node *node,
+    const Uint8 *keys,
+    SDL_Scancode startMod,
+    SDL_Scancode endMod)
 {
-    if (keys[SDL_SCANCODE_LSHIFT]) {
+    if (keys[startMod]) {
         SDL_SetRenderDrawColor(ren, 0, 255, 0, 75);
-    } else if (keys[SDL_SCANCODE_LCTRL]) {
+    } else if (keys[endMod]) {
         SDL_SetRenderDrawColor(ren, 255, 0, 0, 75);
     } else {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 75);
