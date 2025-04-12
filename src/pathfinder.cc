@@ -360,6 +360,7 @@ void Pathfinder::writePath()
         path.insert(current);
         if (current == map.startNode)
             break;
+
         Node *lowest = nullptr;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -432,7 +433,7 @@ void Pathfinder::dijkstra()
 
         // Wait for the main loop to allow the next step
         std::unique_lock<std::mutex> lock(pathMutex);
-        cv.wait_for(lock, std::chrono::milliseconds(1), [this] { return !stepCompleted; });
+        cv.wait_for(lock, std::chrono::milliseconds(DELAY), [this] { return !stepCompleted; });
 
         if (terminateThread) {
             pathfinding = false;
@@ -491,7 +492,7 @@ void Pathfinder::aStar()
 
         // Wait for the main loop to allow the next step
         std::unique_lock<std::mutex> lock(pathMutex);
-        cv.wait_for(lock, std::chrono::milliseconds(1), [this] { return !stepCompleted; });
+        cv.wait_for(lock, std::chrono::milliseconds(DELAY), [this] { return !stepCompleted; });
 
         if (terminateThread) {
             pathfinding = false;

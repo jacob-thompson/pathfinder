@@ -62,8 +62,13 @@ int main(void)
         SDL_RenderPresent(pf.ren);
 
         // terminate thread if its job is done
-        if (pf.pathfinderThread.joinable() && !pf.pathfinding)
+        if (
+            pf.pathfinderThread.joinable()
+            &&
+            (!pf.pathfinding || !pf.isRunning())
+        ) {
             pf.killThread();
+        }
 
         // notify thread to proceed to the next step
         {
@@ -74,7 +79,7 @@ int main(void)
 
         // wait for thread to complete the current step
         std::unique_lock<std::mutex> lock(pf.pathMutex);
-        pf.cv.wait_for(lock, std::chrono::milliseconds(1), [&pf] { return pf.stepCompleted; });
+        pf.cv.wait_for(lock, std::chrono::milliseconds(DELAY), [&pf] { return pf.stepCompleted; });
     }
 
     SDL_Quit();

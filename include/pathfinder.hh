@@ -7,6 +7,8 @@
 
 #include "grid.hh"
 
+#define DELAY 5
+
 class Pathfinder {
 private:
     bool error;
