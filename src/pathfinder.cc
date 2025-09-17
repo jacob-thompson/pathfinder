@@ -4,6 +4,8 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
 {
     user.hoveredNode = nullptr;
     user.pos = new SDL_Point();
+    user.leftClick = false;
+    user.rightClick = false;
     error = false;
     running = true;
     selectingDijkstra = false;
@@ -32,7 +34,6 @@ Pathfinder::Pathfinder() : map(DISPLAY_WIDTH / NODE_SIZE, DISPLAY_HEIGHT / NODE_
 #else
     endMod = SDL_SCANCODE_LCTRL;
 #endif
-
 
     if (map.isInitError())
         error = true;
