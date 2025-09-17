@@ -168,6 +168,8 @@ void Grid::drawHovered(
 void Grid::drawPath(SDL_Renderer *ren, std::set<Node *> path)
 {
     for (Node *node : path) {
+        if (node == startNode || node == endNode)
+            continue;
         SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
         SDL_RenderFillRect(ren, &node->rect);
     }
