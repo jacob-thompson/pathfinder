@@ -6,7 +6,7 @@
 
 #include "node.hh"
 
-#include "SDL_ttf.h"
+#include <SDL2/SDL_ttf.h>
 
 #define DISPLAY_WIDTH 800  // window width
 #define DISPLAY_HEIGHT 600 // window height

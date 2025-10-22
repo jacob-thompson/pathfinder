@@ -1,22 +1,12 @@
-ifeq (run, $(firstword $(MAKECMDGOALS)))
-  # get arguments for `make run`
-  RUN_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
-  $(eval $(RUN_ARGS):;@:)
-endif
+CC = c++
 
-CC = g++
+CFLAGS = -std=c++11 -Wall -Wno-unused-function
 
-CFLAGS = -I.
-CFLAGS += -std=c++11
-CFLAGS += -Wall
+SDL_CFLAGS = $(shell pkg-config --cflags sdl2 sdl2_image sdl2_ttf)
+SDL_LDFLAGS = $(shell pkg-config --libs sdl2 sdl2_image sdl2_ttf)
 
-SDLFLAGS = `sdl2-config --libs --cflags`
-SDLFLAGS += -lSDL2_ttf -lSDL2_image
-
-ifeq ($(shell uname), Darwin)
-CFLAGS += -Wno-unused-command-line-argument
-SDLFLAGS += -I/opt/homebrew/Cellar/sdl2/*/include
-endif
+CFLAGS += $(SDL_CFLAGS)
+LDFLAGS += $(SDL_LDFLAGS)
 
 IDIR = include
 _DEPS = node.hh grid.hh pathfinder.hh
@@ -31,13 +21,13 @@ OUT = pathfinder
 .PHONY: clean run
 
 $(BDIR)/%.o: src/%.cc $(DEPS) clean
-	$(CC) -c -o $@ $< $(CFLAGS) $(SDLFLAGS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OUT): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(SDLFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 run:
-	./$(OUT) $(RUN_ARGS)
+	./$(OUT)
 
 clean:
 	rm -f $(OBJ) $(OUT)

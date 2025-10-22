@@ -3,7 +3,7 @@
 
 #include <climits>
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #define NODE_SIZE 20 // width and height of each node
 
