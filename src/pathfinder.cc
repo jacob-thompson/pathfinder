@@ -519,7 +519,8 @@ void Pathfinder::aStar()
     pathfinding = false;
 }
 
-Pathfinder::~Pathfinder() {
+Pathfinder::~Pathfinder()
+{
     if (pathfinderThread.joinable())
         pathfinderThread.join();
 
